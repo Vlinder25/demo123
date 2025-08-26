@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dog Run Game</title>
+  <style>
+    body {
+      font-family: monospace;
+      background: #f0f8ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    #game {
+      font-size: 2rem;
+      width: 600px;
+      height: 150px;
+      border: 2px solid #333;
+      overflow: hidden;
+      position: relative;
+      background: #fff;
+    }
+    #dog {
+      position: absolute;
+      bottom: 10px;
+      left: 50px;
+    }
+    .obstacle {
+      position: absolute;
+      bottom: 10px;
+      right: 0;
+    }
+    #score {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐕 Dog Run Game</h1>
+  <p>Press <strong>Space</strong> to jump over obstacles!</p>
+  <div id="game">
+    <div id="dog">🐕</div>
+  </div>
+  <div id="score">Score: 0</div>
+
+  <script>
+    const game = document.getElementById('game');
+    const dog = document.getElementById('dog');
+    const scoreDisplay = document.getElementById('score');
+
+    let isJumping = false;
+    let score = 0;
+
+    // Dog jump
+    document.addEventListener('keydown', e => {
+      if (e.code === 'Space' && !isJumping) {
+        jump();
+      }
+    });
+
+    function jump() {
+      let position = 0;
+      isJumping = true;
+
+      const upInterval = setInterval(() => {
+        if (position >= 80) {
+          clearInterval(upInterval);
+          const downInterval = setInterval(() => {
+            if (position <= 0) {
+              clearInterval(downInterval);
+              isJumping = false;
+            }
+            dog.style.bottom = position + 'px';
+            position -= 5;
+          }, 20);
+        }
+        dog.style.bottom = position + 'px';
+        position += 5;
+      }, 20);
+    }
+
+    // Create obstacles
+    function createObstacle() {
+      const obstacle = document.createElement('div');
+      obstacle.textContent = '🌲';
+      obstacle.classList.add('obstacle');
+      obstacle.style.right = '0px';
+      game.appendChild(obstacle);
+
+      let obstaclePosition = 0;
+      const moveInterval = setInterval(() => {
+        if (obstaclePosition > 600) {
+          clearInterval(moveInterval);
+          game.removeChild(obstacle);
+          score++;
+          scoreDisplay.textContent = 'Score: ' + score;
+        }
+
+        // Collision detection
+        const dogBottom = parseInt(window.getComputedStyle(dog).bottom);
+        if (obstaclePosition > 530 && obstaclePosition < 580 && dogBottom < 50) {
+          alert('Game Over! Final Score: ' + score);
+          location.reload();
+        }
+
+        obstacle.style.right = obstaclePosition + 'px';
+        obstaclePosition += 5;
+      }, 30);
+
+      setTimeout(createObstacle, Math.random() * 3000 + 2000);
+    }
+
+    createObstacle();
+  </script>
+</body>
+</html>
