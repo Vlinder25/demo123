@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lavender Study Planner</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f8f6fa;
+      margin: 40px;
+      color: #4b3b5a;
+    }
+    h1 {
+      text-align: center;
+      color: #6d5b95;
+    }
+    .planner {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #d1c4e9;
+    }
+    input {
+      width: 65%;
+      margin-right: 5px;
+    }
+    button {
+      background-color: #b39ddb;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #9575cd;
+    }
+    ul {
+      margin-top: 20px;
+      padding: 0;
+      list-style: none;
+    }
+    li {
+      background: #ede7f6;
+      margin-bottom: 10px;
+      padding: 12px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .time {
+      font-size: 14px;
+      color: #6d5b95;
+    }
+  </style>
+</head>
+<body>
+  <h1>📚 Lavender Study Planner</h1>
+  <div class="planner">
+    <input type="text" id="taskInput" placeholder="Enter study task...">
+    <input type="time" id="timeInput">
+    <button onclick="addTask()">Add Task</button>
+
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    // Request notification permission
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
+    function addTask() {
+      const taskText = document.getElementById("taskInput").value.trim();
+      const taskTime = document.getElementById("timeInput").value;
+
+      if (taskText === "" || taskTime === "") return;
+
+      const li = document.createElement("li");
+      li.innerHTML = `<span>${taskText} <span class="time">(${taskTime})</span></span> 
+                      <button onclick="removeTask(this)">❌</button>`;
+
+      document.getElementById("taskList").appendChild(li);
+
+      // Schedule reminder notification
+      scheduleReminder(taskText, taskTime);
+
+      document.getElementById("taskInput").value = "";
+      document.getElementById("timeInput").value = "";
+    }
+
+    function removeTask(button) {
+      button.parentElement.remove();
+    }
+
+    function scheduleReminder(task, time) {
+      const now = new Date();
+      const [hours, minutes] = time.split(":");
+      const reminderTime = new Date();
+      reminderTime.setHours(hours);
+      reminderTime.setMinutes(minutes);
+      reminderTime.setSeconds(0);
+
+      let delay = reminderTime - now;
+      if (delay < 0) delay += 24 * 60 * 60 * 1000; // if time passed, set for next day
+
+      setTimeout(() => {
+        if (Notification.permission === "granted") {
+          new Notification("⏰ Study Reminder", {
+            body: `Time to: ${task}`,
+            icon: "https://cdn-icons-png.flaticon.com/512/2965/2965358.png"
+          });
+        }
+      }, delay);
+    }
+  </script>
+</body>
+</html>
