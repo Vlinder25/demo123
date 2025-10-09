@@ -1,0 +1,16 @@
+# Example workflow for Relaxify dataset prep
+import torchvision.transforms as transforms
+from torchvision.datasets import ImageFolder
+from torch.utils.data import DataLoader
+
+# Data transform for AlexNet input (227x227)
+transform = transforms.Compose([
+    transforms.Resize((227, 227)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
+])
+
+# Load FER-2013 images
+train_data = ImageFolder("path/to/FER2013/train", transform=transform)
+train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
